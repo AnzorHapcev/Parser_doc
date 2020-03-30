@@ -8,10 +8,12 @@ HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gec
 HOST = 'https://h24.ua'
 FILE = 'doctors.csv'
 
+#функция задаваемой URL
 def get_html(url, params=None):
     r = requests.get(url, headers=HEADERS, params=params)
     return r
 
+#функция для работы с пагинацией
 def get_pages_count(html):
     soup = BeautifulSoup(html, 'html.parser')
     pagination = soup.find('ul', class_='pagination').find_all('li')
@@ -21,6 +23,7 @@ def get_pages_count(html):
     else:
         return 1
 
+#функция парсит заданную URL
 def get_content(html):
     soup = BeautifulSoup(html, 'html.parser')
     items = soup.find_all(class_="doctors")
@@ -28,7 +31,6 @@ def get_content(html):
     for item in items:
         doctors.append({
             'full name': item.find('a','div', class_='doctors-about__name').get_text(strip=True),
-            #.replace('комментарий',''),
             'link': HOST + item.find('a','div', class_='doctors-about__name').get('href'),
             'speciality': item.find('div', class_='doctorsListPage--body__speciality').find_next('p', class_='doctor-speciality').get_text(strip=True),
             'clinik': item.find('a', 'div', class_='division-title-d').get_text(strip=True),
@@ -38,6 +40,7 @@ def get_content(html):
     save_file(doctors, FILE)
     os.startfile(FILE)
 
+#функция сохранения в файл .csv
 def save_file(items, path):
     with open(path, 'w', newline='') as file:
         writer = csv.writer(file, delimiter=';')
